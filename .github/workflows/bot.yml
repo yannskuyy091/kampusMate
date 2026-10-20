@@ -2,51 +2,43 @@ name: KampusMate Auto Presensi
 
 on:
   schedule:
-    # Menjalankan bot setiap hari pukul 07:00 WIB (UTC 00:00)
-    # Ubah angka cron sesuai jam kuliahmu dalam format UTC (WIB dikurangi 7 jam)
     - cron: '0 0 * * *'
-  workflow_dispatch: # Memungkinkan tombol 'Run workflow' manual di tab Actions GitHub
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Ambil kode dari repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-            python-version: '3.12'  # Ubah dari 3.10 ke 3.12
-            cache: 'pip'
+          python-version: '3.12'
+          cache: 'pip'
 
-      # 3. Instal dependencies backend & worker
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
           pip install playwright requests python-dotenv
 
-      # 4. Instal Playwright Browser Chromium di mesin Linux GitHub
       - name: Install Playwright Browsers
         run: playwright install chromium
 
-      # 5. Buat file .env secara otomatis dari GitHub Secrets
       - name: Generate .env file
-            run: |
-              echo "SIPT_EMAIL=${{ secrets.SIPT_EMAIL }}" >> backend/.env
-              echo "SIPT_PASSWORD=${{ secrets.SIPT_PASSWORD }}" >> backend/.env
-              echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> backend/.env
-              echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> backend/.env
+        run: |
+          echo "SIPT_EMAIL=${{ secrets.SIPT_EMAIL }}" >> backend/.env
+          echo "SIPT_PASSWORD=${{ secrets.SIPT_PASSWORD }}" >> backend/.env
+          echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> backend/.env
+          echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> backend/.env
 
-          # 6. Inisialisasi Database SQLite & Tabel secara otomatis
       - name: Init Database Tables
-            run: |
-              python -c "from backend.app.core.database import engine, Base; from backend.app.models.jadwal import JadwalKuliah; Base.metadata.create_all(bind=engine)"
+        run: |
+          python -c "import sys; sys.path.append('backend'); from app.core.database import engine, Base; from app.models.jadwal import JadwalKuliah; Base.metadata.create_all(bind=engine)"
 
-          # 7. Jalankan Attendance Bot
       - name: Run Attendance Bot
-            run: |
-              python workers/presensi_bot/main_bot.py
+        run: |
+          python workers/presensi_bot/main_bot.py
