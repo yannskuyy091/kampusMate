@@ -1,0 +1,9 @@
+# Mengabaikan file environment
+.env
+
+# Mengabaikan virtual environment
+venv/
+backend/venv/
+
+# Mengabaikan database SQLite lokal
+*.db
