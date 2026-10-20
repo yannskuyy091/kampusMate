@@ -35,14 +35,18 @@ jobs:
 
       # 5. Buat file .env secara otomatis dari GitHub Secrets
       - name: Generate .env file
-        run: |
-          echo "SIPT_EMAIL=${{ secrets.SIPT_EMAIL }}" >> backend/.env
-          echo "SIPT_PASSWORD=${{ secrets.SIPT_PASSWORD }}" >> backend/.env
-          echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> backend/.env
-          echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> backend/.env
+            run: |
+              echo "SIPT_EMAIL=${{ secrets.SIPT_EMAIL }}" >> backend/.env
+              echo "SIPT_PASSWORD=${{ secrets.SIPT_PASSWORD }}" >> backend/.env
+              echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> backend/.env
+              echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> backend/.env
 
-      # 6. Inisialisasi Database dan Masukkan Jadwal (Opsional/Otomatis via skrip setup jika ada)
-      # Atau pastikan SQLite terbawa/dibuat ulang, lalu jalankan worker bot
+          # 6. Inisialisasi Database SQLite & Tabel secara otomatis
+      - name: Init Database Tables
+            run: |
+              python -c "from backend.app.core.database import engine, Base; from backend.app.models.jadwal import JadwalKuliah; Base.metadata.create_all(bind=engine)"
+
+          # 7. Jalankan Attendance Bot
       - name: Run Attendance Bot
-        run: |
-          python workers/presensi_bot/main_bot.py
+            run: |
+              python workers/presensi_bot/main_bot.py
