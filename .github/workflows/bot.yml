@@ -19,8 +19,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'  # Gunakan Python 3.11 atau 3.12 agar kompatibel dengan pyee terbaru
-          cache: 'pip'
+            python-version: '3.12'  # Ubah dari 3.10 ke 3.12
+            cache: 'pip'
 
       # 3. Instal dependencies backend & worker
       - name: Install Dependencies
